@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1e3a5f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>OperaCond Online</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --primary:#1e3a5f;--primary-light:#2d5a8e;--accent:#f0a500;
+  --danger:#dc2626;--success:#16a34a;--bg:#f0f4f8;--card:#fff;
+  --text:#1a202c;--text-muted:#718096;--border:#e2e8f0;
+  --nav-h:64px;--safe-bottom:env(safe-area-inset-bottom,0px);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+/* ── AUTH ── */
+#auth-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;background:linear-gradient(160deg,var(--primary) 0%,var(--primary-light) 100%);}
+.auth-logo{width:80px;height:80px;background:var(--accent);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:16px;box-shadow:0 8px 24px rgba(0,0,0,.3);}
+.auth-title{color:#fff;font-size:24px;font-weight:700;margin-bottom:4px;}
+.auth-sub{color:rgba(255,255,255,.7);font-size:14px;margin-bottom:32px;}
+.auth-card{background:#fff;border-radius:20px;padding:28px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.auth-tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:20px;}
+.auth-tab{flex:1;padding:10px;text-align:center;cursor:pointer;font-weight:600;color:var(--text-muted);border-bottom:3px solid transparent;margin-bottom:-2px;transition:.2s;}
+.auth-tab.active{color:var(--primary);border-color:var(--primary);}
+.auth-form{display:flex;flex-direction:column;gap:14px;}
+.f-group{display:flex;flex-direction:column;gap:6px;}
+.f-group label{font-size:13px;font-weight:600;color:var(--text);}
+.f-input{padding:12px 14px;border:2px solid var(--border);border-radius:10px;font-size:16px;outline:none;transition:.2s;width:100%;}
+.f-input:focus{border-color:var(--primary);}
+.btn{padding:13px;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-primary{background:var(--primary);color:#fff;}
+.btn-primary:active{opacity:.85;}
+.btn-accent{background:var(--accent);color:#fff;}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-outline{background:transparent;border:2px solid var(--border);color:var(--text);}
+.btn-sm{padding:8px 14px;font-size:14px;}
+.auth-error{background:#fee2e2;color:var(--danger);padding:10px;border-radius:8px;font-size:14px;display:none;}
+.workspace-section{margin-top:20px;padding-top:20px;border-top:2px solid var(--border);}
+.ws-label{font-size:13px;color:var(--text-muted);margin-bottom:10px;text-align:center;}
+
+/* ── SETUP WORKSPACE ── */
+#setup-screen{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;background:var(--bg);}
+.setup-card{background:#fff;border-radius:20px;padding:28px;width:100%;max-width:400px;box-shadow:0 4px 20px rgba(0,0,0,.1);}
+.setup-title{font-size:20px;font-weight:700;margin-bottom:8px;}
+.setup-sub{color:var(--text-muted);font-size:14px;margin-bottom:24px;}
+.code-display{background:var(--bg);border-radius:12px;padding:20px;text-align:center;margin:16px 0;}
+.code-display .code{font-size:32px;font-weight:900;letter-spacing:8px;color:var(--primary);}
+.code-display small{display:block;color:var(--text-muted);font-size:12px;margin-top:4px;}
+
+/* ── APP LAYOUT ── */
+#app-screen{display:none;min-height:100vh;}
+.app-header{background:var(--primary);color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.app-header h1{font-size:18px;font-weight:700;}
+.header-right{display:flex;align-items:center;gap:8px;}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;cursor:pointer;}
+.main-content{padding:16px;padding-bottom:calc(var(--nav-h) + var(--safe-bottom) + 16px);}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);display:flex;padding-bottom:var(--safe-bottom);z-index:200;box-shadow:0 -4px 12px rgba(0,0,0,.08);}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px;cursor:pointer;color:var(--text-muted);font-size:11px;font-weight:600;gap:3px;transition:.2s;}
+.nav-item.active{color:var(--primary);}
+.nav-icon{font-size:22px;}
+.badge{background:var(--danger);color:#fff;border-radius:10px;font-size:10px;padding:1px 5px;margin-left:2px;}
+
+/* ── SECTIONS ── */
+.section{display:none;}
+.section.active{display:block;}
+
+/* ── CARDS ── */
+.card{background:var(--card);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.card-title{font-size:15px;font-weight:700;}
+.tag{display:inline-block;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;text-transform:uppercase;}
+.tag-pending{background:#fef3c7;color:#b45309;}
+.tag-done{background:#d1fae5;color:#065f46;}
+.tag-assigned{background:#dbeafe;color:#1e40af;}
+
+/* ── FORM ── */
+.form-grid{display:flex;flex-direction:column;gap:14px;}
+.category-row{display:flex;flex-direction:column;gap:8px;padding:12px;background:var(--bg);border-radius:12px;}
+.cat-check{display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:600;}
+.cat-check input[type=checkbox]{width:20px;height:20px;accent-color:var(--primary);cursor:pointer;}
+.cat-textarea{display:none;resize:none;padding:10px;border:2px solid var(--border);border-radius:8px;font-size:15px;width:100%;font-family:inherit;}
+.cat-textarea.visible{display:block;}
+
+/* ── PHOTO ── */
+.photos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
+.photo-thumb{aspect-ratio:1;border-radius:10px;overflow:hidden;position:relative;cursor:pointer;background:#eee;}
+.photo-thumb img{width:100%;height:100%;object-fit:cover;}
+.photo-thumb .rm-photo{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;}
+.photo-caption{font-size:12px;color:var(--text-muted);text-align:center;padding:2px 4px;}
+
+/* ── ALERTS ── */
+.alert{padding:14px 16px;border-radius:12px;margin-bottom:12px;font-size:14px;}
+.alert-warn{background:#fef3c7;border-left:4px solid var(--accent);color:#92400e;}
+.alert-info{background:#dbeafe;border-left:4px solid #3b82f6;color:#1e40af;}
+
+/* ── STATS ── */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.stat-card{background:var(--card);border-radius:14px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.stat-num{font-size:28px;font-weight:900;color:var(--primary);}
+.stat-label{font-size:11px;color:var(--text-muted);font-weight:600;}
+
+/* ── USERS ADMIN ── */
+.user-row{display:flex;align-items:center;gap:12px;padding:12px;background:var(--card);border-radius:12px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,.05);}
+.user-row .avatar{width:42px;height:42px;font-size:16px;flex-shrink:0;}
+.user-info{flex:1;min-width:0;}
+.user-name{font-weight:700;font-size:15px;}
+.user-role{font-size:12px;color:var(--text-muted);}
+.user-actions{display:flex;gap:6px;}
+
+/* ── MODAL ── */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:.25s;}
+.modal-backdrop.open{opacity:1;pointer-events:all;}
+.modal-sheet{background:#fff;border-radius:24px 24px 0 0;padding:24px;width:100%;max-height:90vh;overflow-y:auto;transform:translateY(100%);transition:.3s cubic-bezier(.4,0,.2,1);}
+.modal-backdrop.open .modal-sheet{transform:translateY(0);}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px;}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:16px;}
+
+/* ── LOADER ── */
+.loader{display:inline-block;width:20px;height:20px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.full-loader{display:flex;align-items:center;justify-content:center;min-height:200px;color:var(--text-muted);gap:10px;}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:calc(var(--nav-h) + var(--safe-bottom) + 12px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:#fff;padding:10px 20px;border-radius:40px;font-size:14px;font-weight:600;opacity:0;transition:.3s;z-index:500;white-space:nowrap;max-width:90vw;text-align:center;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── TASK DETAIL ── */
+.task-detail-photos{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px;}
+.task-detail-photo{aspect-ratio:1;border-radius:12px;overflow:hidden;background:#eee;cursor:pointer;}
+.task-detail-photo img{width:100%;height:100%;object-fit:cover;}
+
+/* ── FULLSCREEN IMG ── */
+#img-viewer{position:fixed;inset:0;background:#000;z-index:600;display:none;flex-direction:column;align-items:center;justify-content:center;}
+#img-viewer.open{display:flex;}
+#img-viewer img{max-width:100%;max-height:90vh;object-fit:contain;}
+#img-viewer-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:50%;width:40px;height:40px;font-size:20px;cursor:pointer;}
+
+/* ── ASSIGN ── */
+.assign-select{padding:10px;border:2px solid var(--border);border-radius:8px;font-size:15px;width:100%;font-family:inherit;}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:40px 20px;color:var(--text-muted);}
+.empty-icon{font-size:48px;margin-bottom:12px;}
+
+/* ── RESPONSIVE ── */
+@media(min-width:600px){
+  .stats-row{grid-template-columns:repeat(4,1fr);}
+  .photos-grid{grid-template-columns:repeat(4,1fr);}
+}
+</style>
+</head>
+<body>
+
+<!-- ─────────── AUTH SCREEN ─────────── -->
+<div id="auth-screen">
+  <div class="auth-logo">🏢</div>
+  <div class="auth-title">OperaCond</div>
+  <div class="auth-sub">Gestão Condominial Online</div>
+  <div class="auth-card">
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="switchAuthTab('login')">Entrar</div>
+      <div class="auth-tab" onclick="switchAuthTab('register')">Cadastrar</div>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="tab-login" class="auth-form">
+      <div class="auth-error" id="login-error"></div>
+      <div class="f-group">
+        <label>E-mail</label>
+        <input class="f-input" type="email" id="login-email" placeholder="seu@email.com">
+      </div>
+      <div class="f-group">
+        <label>Senha</label>
+        <input class="f-input" type="password" id="login-pass" placeholder="••••••••">
+      </div>
+      <button class="btn btn-primary" onclick="doLogin()">Entrar</button>
+      <div class="workspace-section">
+        <div class="ws-label">Colaborador? Entre com código</div>
+        <div class="f-group">
+          <input class="f-input" type="text" id="login-code" placeholder="Código do condomínio (ex: ABC123)" style="text-transform:uppercase;letter-spacing:3px;text-align:center;" maxlength="6">
+        </div>
+        <button class="btn btn-outline" onclick="joinWithCode()" style="margin-top:4px;">Entrar no Condomínio</button>
+      </div>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="tab-register" class="auth-form" style="display:none;">
+      <div class="auth-error" id="reg-error"></div>
+      <div class="f-group">
+        <label>Nome completo</label>
+        <input class="f-input" type="text" id="reg-name" placeholder="Seu nome">
+      </div>
+      <div class="f-group">
+        <label>Cargo / Função</label>
+        <input class="f-input" type="text" id="reg-role" placeholder="Ex: Zelador, Administrador">
+      </div>
+      <div class="f-group">
+        <label>E-mail</label>
+        <input class="f-input" type="email" id="reg-email" placeholder="seu@email.com">
+      </div>
+      <div class="f-group">
+        <label>Senha</label>
+        <input class="f-input" type="password" id="reg-pass" placeholder="Mínimo 6 caracteres">
+      </div>
+      <button class="btn btn-primary" onclick="doRegister()">Criar Conta Admin</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─────────── SETUP SCREEN (new admin pick workspace name) ─────────── -->
+<div id="setup-screen">
+  <div class="setup-card">
+    <div class="setup-title">Bem-vindo, <span id="setup-name"></span>!</div>
+    <div class="setup-sub">Configure seu condomínio para começar.</div>
+    <div class="f-group" style="margin-bottom:14px;">
+      <label>Nome do Condomínio</label>
+      <input class="f-input" id="condo-name" placeholder="Ex: Residencial Primavera">
+    </div>
+    <button class="btn btn-primary" onclick="createWorkspace()">Criar Condomínio</button>
+    <div class="code-display" id="ws-code-box" style="display:none;">
+      <div class="code" id="ws-code-display"></div>
+      <small>Compartilhe este código com seus colaboradores</small>
+    </div>
+    <button class="btn btn-accent" id="go-app-btn" style="display:none;margin-top:12px;" onclick="goToApp()">Ir para o App →</button>
+  </div>
+</div>
+
+<!-- ─────────── MAIN APP ─────────── -->
+<div id="app-screen">
+  <div class="app-header">
+    <h1 id="header-condo-name">OperaCond</h1>
+    <div class="header-right">
+      <span id="header-user-role" style="font-size:12px;opacity:.8;"></span>
+      <div class="avatar" id="header-avatar" onclick="showUserMenu()">?</div>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <!-- DASHBOARD -->
+    <div class="section active" id="sec-dashboard">
+      <div id="overdue-alert" style="display:none;" class="alert alert-warn">
+        ⚠️ Você possui <strong id="overdue-count">0</strong> tarefa(s) pendente(s) de dias anteriores.
+        <br><br>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-sm btn-accent" onclick="goToSection('tasks')">Ver Tarefas</button>
+          <button class="btn btn-sm btn-outline" onclick="document.getElementById('overdue-alert').style.display='none'">Dispensar</button>
+        </div>
+      </div>
+      <div id="assigned-alert" style="display:none;" class="alert alert-info">
+        📋 Você tem <strong id="assigned-count">0</strong> tarefa(s) atribuída(s) a você!
+        <button class="btn btn-sm btn-primary" style="margin-top:8px;" onclick="goToSection('tasks')">Ver Tarefas</button>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-pending">0</div><div class="stat-label">Pendentes</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-done">0</div><div class="stat-label">Concluídas</div></div>
+      </div>
+      <div id="recent-tasks-list"><div class="full-loader"><div class="loader" style="border-top-color:var(--primary);border-color:var(--border);"></div>Carregando...</div></div>
+    </div>
+
+    <!-- NEW TASK -->
+    <div class="section" id="sec-new-task">
+      <div class="card">
+        <div class="card-title" style="margin-bottom:16px;" id="task-form-title">Nova Tarefa</div>
+        <div class="form-grid">
+          <div class="f-group">
+            <label>Título da Tarefa</label>
+            <input class="f-input" id="task-title" placeholder="Resumo rápido da tarefa">
+          </div>
+          <div class="f-group">
+            <label>Atividades (marque e descreva)</label>
+            <div id="categories-container"></div>
+          </div>
+          <div class="f-group" id="assign-group" style="display:none;">
+            <label>Atribuir a (opcional)</label>
+            <select class="assign-select" id="task-assignee">
+              <option value="">— Ninguém (tarefa minha) —</option>
+            </select>
+          </div>
+          <div class="f-group">
+            <label>Fotos</label>
+            <button class="btn btn-outline" onclick="triggerPhoto()">📷 Adicionar Foto</button>
+            <input type="file" id="photo-input" accept="image/*" multiple style="display:none;" onchange="handlePhotos(this)">
+            <div class="photos-grid" id="pending-photos-grid"></div>
+          </div>
+          <input type="hidden" id="edit-task-id">
+          <button class="btn btn-primary" onclick="saveTask()">💾 Salvar Tarefa</button>
+          <button class="btn btn-outline" onclick="cancelEdit()" id="cancel-edit-btn" style="display:none;">Cancelar Edição</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TASKS LIST -->
+    <div class="section" id="sec-tasks">
+      <div style="display:flex;gap:8px;margin-bottom:12px;overflow-x:auto;padding-bottom:4px;">
+        <button class="btn btn-sm btn-primary" id="filter-all" onclick="setFilter('all')">Todas</button>
+        <button class="btn btn-sm btn-outline" id="filter-pending" onclick="setFilter('pending')">Pendentes</button>
+        <button class="btn btn-sm btn-outline" id="filter-done" onclick="setFilter('done')">Concluídas</button>
+        <button class="btn btn-sm btn-outline" id="filter-mine" onclick="setFilter('mine')">Minhas</button>
+        <button class="btn btn-sm btn-outline" id="filter-assigned" onclick="setFilter('assigned')">A mim</button>
+      </div>
+      <div id="tasks-list"></div>
+    </div>
+
+    <!-- REPORTS -->
+    <div class="section" id="sec-reports">
+      <div class="card">
+        <div class="card-title" style="margin-bottom:12px;">📊 Relatórios</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <button class="btn btn-primary" onclick="generateReport(7)">📄 Relatório Semanal (7 dias)</button>
+          <button class="btn btn-primary" onclick="generateReport(30)">📋 Relatório Mensal (30 dias)</button>
+        </div>
+      </div>
+      <div class="card" id="admin-code-card" style="display:none;">
+        <div class="card-title" style="margin-bottom:8px;">🔑 Código do Condomínio</div>
+        <div class="code-display">
+          <div class="code" id="admin-ws-code">——</div>
+          <small>Compartilhe para que colaboradores entrem</small>
+        </div>
+        <button class="btn btn-outline btn-sm" style="margin-top:8px;" onclick="copyCode()">Copiar Código</button>
+      </div>
+    </div>
+
+    <!-- ADMIN: USERS -->
+    <div class="section" id="sec-users">
+      <div id="users-list"></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV admin -->
+  <div class="bottom-nav" id="nav-admin">
+    <div class="nav-item active" onclick="goToSection('dashboard')" data-sec="dashboard">
+      <span class="nav-icon">🏠</span>Dashboard
+    </div>
+    <div class="nav-item" onclick="goToSection('new-task')" data-sec="new-task">
+      <span class="nav-icon">➕</span>Nova Tarefa
+    </div>
+    <div class="nav-item" onclick="goToSection('tasks')" data-sec="tasks">
+      <span class="nav-icon">📋</span>Tarefas
+    </div>
+    <div class="nav-item" onclick="goToSection('users')" data-sec="users">
+      <span class="nav-icon">👥</span>Equipe
+    </div>
+    <div class="nav-item" onclick="goToSection('reports')" data-sec="reports">
+      <span class="nav-icon">📊</span>Relatórios
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV collaborator -->
+  <div class="bottom-nav" id="nav-collab" style="display:none;">
+    <div class="nav-item active" onclick="goToSection('dashboard')" data-sec="dashboard">
+      <span class="nav-icon">🏠</span>Dashboard
+    </div>
+    <div class="nav-item" onclick="goToSection('new-task')" data-sec="new-task">
+      <span class="nav-icon">➕</span>Nova Tarefa
+    </div>
+    <div class="nav-item" onclick="goToSection('tasks')" data-sec="tasks">
+      <span class="nav-icon">📋</span>Tarefas
+    </div>
+    <div class="nav-item" onclick="goToSection('reports')" data-sec="reports">
+      <span class="nav-icon">📊</span>Relatórios
+    </div>
+  </div>
+</div>
+
+<!-- ─────────── MODALS ─────────── -->
+<!-- Task detail modal -->
+<div class="modal-backdrop" id="modal-task">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-task-title">Tarefa</div>
+    <div id="modal-task-content"></div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px;" id="modal-task-actions"></div>
+  </div>
+</div>
+
+<!-- Complete task modal (justification) -->
+<div class="modal-backdrop" id="modal-complete">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✅ Concluir Tarefa</div>
+    <div class="f-group" style="margin-bottom:16px;">
+      <label>Justificativa / Observação</label>
+      <textarea class="f-input" id="complete-justification" rows="4" placeholder="Descreva como a tarefa foi concluída..." style="resize:none;"></textarea>
+    </div>
+    <input type="hidden" id="complete-task-id">
+    <button class="btn btn-primary" onclick="confirmComplete()">Confirmar Conclusão</button>
+    <button class="btn btn-outline" style="margin-top:8px;" onclick="closeModal('modal-complete')">Cancelar</button>
+  </div>
+</div>
+
+<!-- User menu -->
+<div class="modal-backdrop" id="modal-user-menu">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div style="text-align:center;padding:16px 0 20px;">
+      <div class="avatar" style="width:64px;height:64px;font-size:24px;margin:0 auto 12px;" id="menu-avatar">?</div>
+      <div style="font-weight:700;font-size:18px;" id="menu-name">—</div>
+      <div style="color:var(--text-muted);font-size:14px;" id="menu-role">—</div>
+    </div>
+    <button class="btn btn-danger" onclick="doLogout()">Sair da Conta</button>
+  </div>
+</div>
+
+<!-- Fullscreen image viewer -->
+<div id="img-viewer">
+  <button id="img-viewer-close" onclick="closeImgViewer()">✕</button>
+  <img id="img-viewer-src" src="" alt="">
+  <div id="img-viewer-caption" style="color:rgba(255,255,255,.7);font-size:13px;margin-top:8px;text-align:center;padding:0 20px;"></div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- ─────────── FIREBASE SDK ─────────── -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+// ══════════════════════════════════════
+//  FIREBASE CONFIG
+// ══════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyCsdDFUpkQLwiFAU5iaou-N6742btBR328",
+  authDomain: "operacond-4f006.firebaseapp.com",
+  projectId: "operacond-4f006",
+  storageBucket: "operacond-4f006.firebasestorage.app",
+  messagingSenderId: "259254552497",
+  appId: "1:259254552497:web:25bb904dad80b342341f90",
+  measurementId: "G-PGXFT4DFL6"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// Enable offline persistence
+db.enablePersistence().catch(e => console.warn('Persistence:', e.code));
+
+// ══════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════
+const CATEGORIES = ['Atendimento Morador','Ocorrência','Manutenção','Orçamento','Melhorias','Abertura de Sinistro'];
+
+const State = {
+  user: null,         // Firebase auth user
+  profile: null,      // Firestore user doc
+  workspace: null,    // Firestore workspace doc
+  wsId: null,
+  pendingPhotos: [],  // [{blobUrl, base64, caption}]
+  allTasks: [],       // cached tasks from snapshot
+  allUsers: [],       // cached users
+  taskFilter: 'all',
+  unsubscribers: [],
+  blobUrls: []        // track for revoke
+};
+
+// ══════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════
+function toast(msg, dur = 2500) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), dur);
+}
+
+function initials(name) {
+  return (name || '?').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+}
+
+function formatDate(ts) {
+  if (!ts) return '—';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+
+function randomCode() {
+  return Math.random().toString(36).substring(2,8).toUpperCase();
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function blobUrl(b64) {
+  if (!b64) return '';
+  const [header, data] = b64.split(',');
+  const mime = header.match(/:(.*?);/)[1];
+  const bytes = atob(data);
+  const arr = new Uint8Array(bytes.length);
+  for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+  const url = URL.createObjectURL(new Blob([arr], {type: mime}));
+  State.blobUrls.push(url);
+  return url;
+}
+
+function revokeBlobs() {
+  State.blobUrls.forEach(u => { try { URL.revokeObjectURL(u); } catch(e) {} });
+  State.blobUrls = [];
+}
+
+// Compress image to base64
+function compressImage(file, maxDim = 1080, quality = 0.7) {
+  return new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if (w > maxDim || h > maxDim) {
+          if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+          else { w = Math.round(w * maxDim / h); h = maxDim; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// ══════════════════════════════════════
+//  AUTH UI
+// ══════════════════════════════════════
+function switchAuthTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='register')));
+  document.getElementById('tab-login').style.display = tab==='login' ? 'flex' : 'none';
+  document.getElementById('tab-register').style.display = tab==='register' ? 'flex' : 'none';
+}
+
+function setAuthError(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
+}
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  if (!email || !pass) { setAuthError('login-error','Preencha e-mail e senha.'); return; }
+  setAuthError('login-error','');
+  try {
+    await auth.signInWithEmailAndPassword(email, pass);
+  } catch(e) {
+    setAuthError('login-error', translateAuthError(e.code));
+  }
+}
+
+async function doRegister() {
+  const name = document.getElementById('reg-name').value.trim();
+  const role = document.getElementById('reg-role').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass = document.getElementById('reg-pass').value;
+  if (!name || !role || !email || !pass) { setAuthError('reg-error','Preencha todos os campos.'); return; }
+  setAuthError('reg-error','');
+  try {
+    const cred = await auth.createUserWithEmailAndPassword(email, pass);
+    await cred.user.updateProfile({ displayName: name });
+    // Save profile — workspace will be created in setup
+    await db.collection('users').doc(cred.user.uid).set({
+      name, role, email, userType: 'admin',
+      workspaceId: null, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch(e) {
+    setAuthError('reg-error', translateAuthError(e.code));
+  }
+}
+
+// Collaborator join by code
+async function joinWithCode() {
+  const code = document.getElementById('login-code').value.trim().toUpperCase();
+  if (code.length !== 6) { setAuthError('login-error','Código inválido (6 caracteres).'); return; }
+  // Find workspace by code
+  const snap = await db.collection('workspaces').where('code','==',code).limit(1).get();
+  if (snap.empty) { setAuthError('login-error','Código não encontrado.'); return; }
+  // If not authenticated, ask for email/password to register as collaborator
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  if (!email || !pass) { setAuthError('login-error','Preencha e-mail e senha acima para criar conta de colaborador.'); return; }
+  setAuthError('login-error','');
+  try {
+    const wsDoc = snap.docs[0];
+    let uid;
+    // Try login first, then register
+    try {
+      const c = await auth.signInWithEmailAndPassword(email, pass);
+      uid = c.user.uid;
+    } catch(e) {
+      const c = await auth.createUserWithEmailAndPassword(email, pass);
+      uid = c.user.uid;
+    }
+    const userRef = db.collection('users').doc(uid);
+    const userSnap = await userRef.get();
+    if (!userSnap.exists || !userSnap.data().workspaceId) {
+      // Need name if new user
+      const name = prompt('Seu nome completo:') || email.split('@')[0];
+      const role = prompt('Seu cargo / função:') || 'Colaborador';
+      await userRef.set({
+        name, role, email, userType: 'collaborator',
+        workspaceId: wsDoc.id, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+    }
+  } catch(e) {
+    setAuthError('login-error', translateAuthError(e.code));
+  }
+}
+
+function translateAuthError(code) {
+  const map = {
+    'auth/invalid-email': 'E-mail inválido.',
+    'auth/user-not-found': 'Usuário não encontrado.',
+    'auth/wrong-password': 'Senha incorreta.',
+    'auth/email-already-in-use': 'E-mail já cadastrado.',
+    'auth/weak-password': 'Senha muito fraca (mínimo 6 caracteres).',
+    'auth/too-many-requests': 'Muitas tentativas. Aguarde.',
+    'auth/invalid-credential': 'E-mail ou senha incorretos.'
+  };
+  return map[code] || 'Erro: ' + code;
+}
+
+// ══════════════════════════════════════
+//  SETUP WORKSPACE (new admin)
+// ══════════════════════════════════════
+function showSetup(userName) {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('setup-screen').style.display = 'flex';
+  document.getElementById('setup-name').textContent = userName.split(' ')[0];
+}
+
+async function createWorkspace() {
+  const condoName = document.getElementById('condo-name').value.trim();
+  if (!condoName) { toast('Digite o nome do condomínio.'); return; }
+  const uid = auth.currentUser.uid;
+  const code = randomCode();
+  await db.collection('workspaces').doc(uid).set({
+    name: condoName, adminId: uid, code,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  await db.collection('users').doc(uid).update({ workspaceId: uid });
+  document.getElementById('ws-code-display').textContent = code;
+  document.getElementById('ws-code-box').style.display = 'block';
+  document.getElementById('go-app-btn').style.display = 'flex';
+}
+
+function goToApp() {
+  document.getElementById('setup-screen').style.display = 'none';
+  loadApp();
+}
+
+// ══════════════════════════════════════
+//  AUTH STATE LISTENER
+// ══════════════════════════════════════
+auth.onAuthStateChanged(async fbUser => {
+  if (!fbUser) {
+    showScreen('auth');
+    return;
+  }
+  State.user = fbUser;
+  // Load user profile
+  const profileSnap = await db.collection('users').doc(fbUser.uid).get();
+  if (!profileSnap.exists) {
+    // Profile missing — logout
+    await auth.signOut();
+    return;
+  }
+  State.profile = { id: fbUser.uid, ...profileSnap.data() };
+  if (!State.profile.workspaceId) {
+    // New admin without workspace
+    showSetup(State.profile.name);
+    return;
+  }
+  await loadApp();
+});
+
+async function loadApp() {
+  const profile = State.profile;
+  State.wsId = profile.workspaceId;
+  // Load workspace
+  const wsSnap = await db.collection('workspaces').doc(State.wsId).get();
+  State.workspace = wsSnap.data();
+  showScreen('app');
+  setupAppUI();
+  subscribeAll();
+}
+
+function showScreen(name) {
+  document.getElementById('auth-screen').style.display = name==='auth' ? 'flex' : 'none';
+  document.getElementById('setup-screen').style.display = name==='setup' ? 'flex' : 'none';
+  document.getElementById('app-screen').style.display = name==='app' ? 'block' : 'none';
+}
+
+function setupAppUI() {
+  const p = State.profile;
+  const isAdmin = p.userType === 'admin';
+  document.getElementById('header-condo-name').textContent = State.workspace?.name || 'OperaCond';
+  document.getElementById('header-user-role').textContent = p.role;
+  document.getElementById('header-avatar').textContent = initials(p.name);
+  document.getElementById('menu-name').textContent = p.name;
+  document.getElementById('menu-role').textContent = p.role;
+  document.getElementById('menu-avatar').textContent = initials(p.name);
+  // Show right nav
+  document.getElementById('nav-admin').style.display = isAdmin ? 'flex' : 'none';
+  document.getElementById('nav-collab').style.display = isAdmin ? 'none' : 'flex';
+  // Admin extras
+  document.getElementById('assign-group').style.display = isAdmin ? 'block' : 'none';
+  document.getElementById('admin-code-card').style.display = isAdmin ? 'block' : 'none';
+  if (isAdmin) document.getElementById('admin-ws-code').textContent = State.workspace?.code || '——';
+  // Build categories
+  buildCategoryForm();
+}
+
+// ══════════════════════════════════════
+//  REALTIME SUBSCRIPTIONS
+// ══════════════════════════════════════
+function subscribeAll() {
+  // Unsubscribe previous
+  State.unsubscribers.forEach(u => u());
+  State.unsubscribers = [];
+  const wsId = State.wsId;
+
+  // Tasks
+  const unsubTasks = db.collection('tasks')
+    .where('workspaceId','==',wsId)
+    .orderBy('createdAt','desc')
+    .onSnapshot(snap => {
+      State.allTasks = snap.docs.map(d => ({id: d.id, ...d.data()}));
+      refreshDashboard();
+      renderTasksList();
+    });
+  State.unsubscribers.push(unsubTasks);
+
+  // Users (admin only)
+  if (State.profile.userType === 'admin') {
+    const unsubUsers = db.collection('users')
+      .where('workspaceId','==',wsId)
+      .onSnapshot(snap => {
+        State.allUsers = snap.docs.map(d => ({id: d.id, ...d.data()}));
+        renderUsersList();
+        populateAssignSelect();
+      });
+    State.unsubscribers.push(unsubUsers);
+  }
+}
+
+// ══════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════
+function refreshDashboard() {
+  const uid = State.user.uid;
+  const tasks = State.allTasks;
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  const total = tasks.length;
+  const pending = tasks.filter(t => t.status === 'pending').length;
+  const done = tasks.filter(t => t.status === 'done').length;
+
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-pending').textContent = pending;
+  document.getElementById('stat-done').textContent = done;
+
+  // Overdue (mine, pending, from previous days)
+  const overdue = tasks.filter(t => {
+    if (t.status !== 'pending') return false;
+    if (t.createdBy !== uid) return false;
+    const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt);
+    d.setHours(0,0,0,0);
+    return d < today;
+  });
+  const overdueAlert = document.getElementById('overdue-alert');
+  if (overdue.length > 0) {
+    overdueAlert.style.display = 'block';
+    document.getElementById('overdue-count').textContent = overdue.length;
+  } else {
+    overdueAlert.style.display = 'none';
+  }
+
+  // Assigned to me
+  const assigned = tasks.filter(t => t.assignedTo === uid && t.status === 'pending');
+  const assignedAlert = document.getElementById('assigned-alert');
+  if (assigned.length > 0) {
+    assignedAlert.style.display = 'block';
+    document.getElementById('assigned-count').textContent = assigned.length;
+  } else {
+    assignedAlert.style.display = 'none';
+  }
+
+  // Recent tasks (last 5)
+  const recent = tasks.slice(0, 5);
+  const container = document.getElementById('recent-tasks-list');
+  if (recent.length === 0) {
+    container.innerHTML = '<div class="empty"><div class="empty-icon">📋</div>Nenhuma tarefa ainda.</div>';
+    return;
+  }
+  container.innerHTML = '<div style="font-weight:700;margin-bottom:10px;">Tarefas Recentes</div>' +
+    recent.map(t => taskCard(t)).join('');
+}
+
+// ══════════════════════════════════════
+//  TASK CARD HTML
+// ══════════════════════════════════════
+function taskCard(t) {
+  const cats = Object.keys(t.categories || {}).join(', ') || '—';
+  const statusTag = t.status === 'done'
+    ? '<span class="tag tag-done">Concluída</span>'
+    : '<span class="tag tag-pending">Pendente</span>';
+  const assignedTag = t.assignedTo && t.assignedTo !== t.createdBy
+    ? '<span class="tag tag-assigned" style="margin-left:4px;">Atribuída</span>' : '';
+  const assignedName = t.assignedTo ? (State.allUsers.find(u => u.id === t.assignedTo)?.name || '—') : '';
+  return `<div class="card" onclick="openTask('${t.id}')">
+    <div class="card-header">
+      <div>
+        <div class="card-title">${t.title || cats}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${formatDate(t.createdAt)}</div>
+        ${assignedName ? `<div style="font-size:12px;color:#1e40af;margin-top:2px;">👤 ${assignedName}</div>` : ''}
+      </div>
+      <div>${statusTag}${assignedTag}</div>
+    </div>
+    <div style="font-size:13px;color:var(--text-muted);">${cats}</div>
+  </div>`;
+}
+
+// ══════════════════════════════════════
+//  TASKS LIST WITH FILTER
+// ══════════════════════════════════════
+function setFilter(f) {
+  State.taskFilter = f;
+  document.querySelectorAll('[id^=filter-]').forEach(b => {
+    b.className = 'btn btn-sm ' + (b.id === 'filter-' + f ? 'btn-primary' : 'btn-outline');
+  });
+  renderTasksList();
+}
+
+function renderTasksList() {
+  const uid = State.user.uid;
+  let tasks = [...State.allTasks];
+  if (State.taskFilter === 'pending') tasks = tasks.filter(t => t.status === 'pending');
+  else if (State.taskFilter === 'done') tasks = tasks.filter(t => t.status === 'done');
+  else if (State.taskFilter === 'mine') tasks = tasks.filter(t => t.createdBy === uid);
+  else if (State.taskFilter === 'assigned') tasks = tasks.filter(t => t.assignedTo === uid);
+  const container = document.getElementById('tasks-list');
+  if (tasks.length === 0) {
+    container.innerHTML = '<div class="empty"><div class="empty-icon">✅</div>Nenhuma tarefa aqui.</div>';
+    return;
+  }
+  container.innerHTML = tasks.map(t => taskCard(t)).join('');
+}
+
+// ══════════════════════════════════════
+//  OPEN TASK DETAIL
+// ══════════════════════════════════════
+function openTask(taskId) {
+  const t = State.allTasks.find(x => x.id === taskId);
+  if (!t) return;
+  const uid = State.user.uid;
+  const isAdmin = State.profile.userType === 'admin';
+  const canEdit = isAdmin || t.createdBy === uid;
+  const canComplete = (t.assignedTo === uid || t.createdBy === uid || isAdmin) && t.status === 'pending';
+
+  document.getElementById('modal-task-title').textContent = t.title || 'Tarefa';
+
+  let html = `<div style="margin-bottom:12px;">`;
+  html += `<div style="font-size:12px;color:var(--text-muted);">Criado em: ${formatDate(t.createdAt)}</div>`;
+  if (t.createdByName) html += `<div style="font-size:12px;color:var(--text-muted);">Por: ${t.createdByName}</div>`;
+  if (t.assignedTo) {
+    const an = State.allUsers.find(u => u.id === t.assignedTo)?.name || '—';
+    html += `<div style="font-size:12px;color:#1e40af;">Atribuída a: ${an}</div>`;
+  }
+  html += `</div>`;
+
+  const cats = t.categories || {};
+  for (const [cat, desc] of Object.entries(cats)) {
+    html += `<div style="background:var(--bg);border-radius:10px;padding:10px 12px;margin-bottom:8px;">
+      <div style="font-weight:700;font-size:13px;color:var(--primary);">${cat}</div>
+      <div style="font-size:14px;margin-top:4px;">${desc || '—'}</div>
+    </div>`;
+  }
+
+  if (t.justification) {
+    html += `<div style="background:#d1fae5;border-radius:10px;padding:10px 12px;margin-bottom:8px;">
+      <div style="font-weight:700;font-size:13px;color:#065f46;">Conclusão</div>
+      <div style="font-size:14px;margin-top:4px;">${t.justification}</div>
+    </div>`;
+  }
+
+  // Photos
+  const photos = t.photos || [];
+  if (photos.length > 0) {
+    html += `<div class="task-detail-photos">`;
+    photos.forEach((p, i) => {
+      const url = blobUrl(p.base64);
+      html += `<div class="task-detail-photo" onclick="viewImg('${url}','${(p.caption||'').replace(/'/g,"\\'")}')">
+        <img src="${url}" loading="lazy">
+      </div>`;
+    });
+    html += `</div>`;
+    if (photos.some(p => p.caption)) {
+      html += `<div style="margin-top:8px;">` + photos.filter(p=>p.caption).map(p=>`<div style="font-size:12px;color:var(--text-muted);margin-top:4px;">📷 ${p.caption}</div>`).join('') + `</div>`;
+    }
+  }
+
+  document.getElementById('modal-task-content').innerHTML = html;
+
+  // Actions
+  let actions = '';
+  if (canComplete) {
+    actions += `<button class="btn btn-primary" onclick="promptComplete('${taskId}')">✅ Marcar como Concluída</button>`;
+  }
+  if (canEdit) {
+    actions += `<button class="btn btn-outline" onclick="editTask('${taskId}');closeModal('modal-task')">✏️ Editar</button>`;
+    actions += `<button class="btn btn-danger btn-sm" onclick="deleteTask('${taskId}')">🗑️ Excluir</button>`;
+  }
+  document.getElementById('modal-task-actions').innerHTML = actions;
+  openModal('modal-task');
+}
+
+function viewImg(url, caption) {
+  document.getElementById('img-viewer-src').src = url;
+  document.getElementById('img-viewer-caption').textContent = caption || '';
+  document.getElementById('img-viewer').classList.add('open');
+}
+function closeImgViewer() { document.getElementById('img-viewer').classList.remove('open'); }
+
+// ══════════════════════════════════════
+//  COMPLETE TASK
+// ══════════════════════════════════════
+function promptComplete(taskId) {
+  document.getElementById('complete-task-id').value = taskId;
+  document.getElementById('complete-justification').value = '';
+  closeModal('modal-task');
+  openModal('modal-complete');
+}
+
+async function confirmComplete() {
+  const taskId = document.getElementById('complete-task-id').value;
+  const just = document.getElementById('complete-justification').value.trim();
+  await db.collection('tasks').doc(taskId).update({
+    status: 'done',
+    justification: just,
+    completedAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  closeModal('modal-complete');
+  toast('Tarefa concluída!');
+}
+
+async function deleteTask(taskId) {
+  if (!confirm('Excluir esta tarefa?')) return;
+  await db.collection('tasks').doc(taskId).delete();
+  closeModal('modal-task');
+  toast('Tarefa excluída.');
+}
+
+// ══════════════════════════════════════
+//  TASK FORM
+// ══════════════════════════════════════
+function buildCategoryForm() {
+  const container = document.getElementById('categories-container');
+  container.innerHTML = CATEGORIES.map((cat, i) => `
+    <div class="category-row">
+      <label class="cat-check">
+        <input type="checkbox" id="cat-cb-${i}" onchange="toggleCatTextarea(${i})">
+        ${cat}
+      </label>
+      <textarea class="cat-textarea" id="cat-ta-${i}" placeholder="Descreva ${cat.toLowerCase()}..." rows="2"></textarea>
+    </div>
+  `).join('');
+}
+
+function toggleCatTextarea(i) {
+  const cb = document.getElementById(`cat-cb-${i}`);
+  const ta = document.getElementById(`cat-ta-${i}`);
+  ta.classList.toggle('visible', cb.checked);
+}
+
+function clearTaskForm() {
+  document.getElementById('task-title').value = '';
+  document.getElementById('edit-task-id').value = '';
+  document.getElementById('task-form-title').textContent = 'Nova Tarefa';
+  document.getElementById('cancel-edit-btn').style.display = 'none';
+  CATEGORIES.forEach((_,i) => {
+    const cb = document.getElementById(`cat-cb-${i}`);
+    const ta = document.getElementById(`cat-ta-${i}`);
+    if (cb) { cb.checked = false; }
+    if (ta) { ta.value = ''; ta.classList.remove('visible'); }
+  });
+  State.pendingPhotos = [];
+  document.getElementById('pending-photos-grid').innerHTML = '';
+  if (document.getElementById('task-assignee'))
+    document.getElementById('task-assignee').value = '';
+}
+
+function cancelEdit() { clearTaskForm(); goToSection('tasks'); }
+
+function editTask(taskId) {
+  const t = State.allTasks.find(x => x.id === taskId);
+  if (!t) return;
+  clearTaskForm();
+  document.getElementById('task-title').value = t.title || '';
+  document.getElementById('edit-task-id').value = taskId;
+  document.getElementById('task-form-title').textContent = 'Editar Tarefa';
+  document.getElementById('cancel-edit-btn').style.display = 'flex';
+  const cats = t.categories || {};
+  CATEGORIES.forEach((cat, i) => {
+    if (cats[cat] !== undefined) {
+      const cb = document.getElementById(`cat-cb-${i}`);
+      const ta = document.getElementById(`cat-ta-${i}`);
+      cb.checked = true; ta.value = cats[cat]; ta.classList.add('visible');
+    }
+  });
+  // Photos
+  State.pendingPhotos = (t.photos || []).map(p => ({...p, blobUrl: blobUrl(p.base64)}));
+  renderPendingPhotos();
+  if (t.assignedTo && document.getElementById('task-assignee'))
+    document.getElementById('task-assignee').value = t.assignedTo;
+  goToSection('new-task');
+}
+
+function triggerPhoto() { document.getElementById('photo-input').click(); }
+
+async function handlePhotos(input) {
+  const files = Array.from(input.files);
+  for (const f of files) {
+    const base64 = await compressImage(f);
+    const caption = prompt(`Legenda para "${f.name}" (opcional):`) || '';
+    const url = blobUrl(base64);
+    State.pendingPhotos.push({ base64, caption, blobUrl: url });
+  }
+  input.value = '';
+  renderPendingPhotos();
+}
+
+function renderPendingPhotos() {
+  const grid = document.getElementById('pending-photos-grid');
+  grid.innerHTML = State.pendingPhotos.map((p, i) => `
+    <div style="position:relative;">
+      <div class="photo-thumb" onclick="viewImg('${p.blobUrl}','${(p.caption||'').replace(/'/g,"\\'")}')">
+        <img src="${p.blobUrl}">
+        <button class="rm-photo" onclick="event.stopPropagation();removePhoto(${i})">✕</button>
+      </div>
+      ${p.caption ? `<div class="photo-caption">${p.caption}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+function removePhoto(i) {
+  try { URL.revokeObjectURL(State.pendingPhotos[i].blobUrl); } catch(e) {}
+  State.pendingPhotos.splice(i, 1);
+  renderPendingPhotos();
+}
+
+async function saveTask() {
+  const title = document.getElementById('task-title').value.trim();
+  const categories = {};
+  CATEGORIES.forEach((cat, i) => {
+    const cb = document.getElementById(`cat-cb-${i}`);
+    const ta = document.getElementById(`cat-ta-${i}`);
+    if (cb?.checked) categories[cat] = ta?.value.trim() || '';
+  });
+  if (!title && Object.keys(categories).length === 0) {
+    toast('Adicione título ou selecione ao menos uma atividade.'); return;
+  }
+  const photos = State.pendingPhotos.map(p => ({ base64: p.base64, caption: p.caption || '' }));
+  const assignee = document.getElementById('task-assignee')?.value || '';
+  const editId = document.getElementById('edit-task-id').value;
+  const profile = State.profile;
+
+  const data = {
+    title, categories, photos, status: 'pending',
+    workspaceId: State.wsId,
+    assignedTo: assignee || profile.id,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  try {
+    if (editId) {
+      await db.collection('tasks').doc(editId).update(data);
+      toast('Tarefa atualizada!');
+    } else {
+      data.createdBy = profile.id;
+      data.createdByName = profile.name;
+      data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+      await db.collection('tasks').add(data);
+      toast('Tarefa criada!');
+    }
+    clearTaskForm();
+    goToSection('dashboard');
+  } catch(e) {
+    toast('Erro ao salvar: ' + e.message);
+    console.error(e);
+  }
+}
+
+// ══════════════════════════════════════
+//  USERS (ADMIN)
+// ══════════════════════════════════════
+function renderUsersList() {
+  const container = document.getElementById('users-list');
+  if (State.allUsers.length === 0) {
+    container.innerHTML = '<div class="empty"><div class="empty-icon">👥</div>Nenhum usuário ainda.</div>';
+    return;
+  }
+  container.innerHTML = `<div style="font-weight:700;margin-bottom:12px;">Equipe (${State.allUsers.length})</div>` +
+    State.allUsers.map(u => `
+      <div class="user-row">
+        <div class="avatar">${initials(u.name)}</div>
+        <div class="user-info">
+          <div class="user-name">${u.name}</div>
+          <div class="user-role">${u.role} · ${u.userType === 'admin' ? '👑 Admin' : '👤 Colaborador'}</div>
+          <div style="font-size:11px;color:var(--text-muted);">${u.email || ''}</div>
+        </div>
+        ${u.id !== State.user.uid ? `<div class="user-actions">
+          <button class="btn btn-sm btn-danger" onclick="removeUser('${u.id}')">🗑️</button>
+        </div>` : ''}
+      </div>
+    `).join('');
+}
+
+async function removeUser(userId) {
+  if (!confirm('Remover este usuário do condomínio?')) return;
+  await db.collection('users').doc(userId).update({ workspaceId: null });
+  toast('Usuário removido.');
+}
+
+function populateAssignSelect() {
+  const sel = document.getElementById('task-assignee');
+  if (!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— Ninguém (tarefa minha) —</option>' +
+    State.allUsers.filter(u => u.id !== State.user.uid).map(u =>
+      `<option value="${u.id}">${u.name} (${u.role})</option>`
+    ).join('');
+  if (cur) sel.value = cur;
+}
+
+// ══════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════
+function goToSection(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(`sec-${name}`)?.classList.add('active');
+  const allNavItems = document.querySelectorAll('.nav-item');
+  allNavItems.forEach(n => n.classList.toggle('active', n.dataset.sec === name));
+  if (name === 'new-task' && !document.getElementById('edit-task-id').value) clearTaskForm();
+  window.scrollTo(0,0);
+}
+
+// ══════════════════════════════════════
+//  USER MENU / LOGOUT
+// ══════════════════════════════════════
+function showUserMenu() { openModal('modal-user-menu'); }
+
+async function doLogout() {
+  State.unsubscribers.forEach(u => u());
+  State.unsubscribers = [];
+  revokeBlobs();
+  await auth.signOut();
+  closeModal('modal-user-menu');
+}
+
+// ══════════════════════════════════════
+//  COPY CODE
+// ══════════════════════════════════════
+function copyCode() {
+  const code = State.workspace?.code;
+  if (!code) return;
+  navigator.clipboard.writeText(code).then(() => toast('Código copiado!')).catch(() => toast(code));
+}
+
+// ══════════════════════════════════════
+//  REPORTS — PDF
+// ══════════════════════════════════════
+async function generateReport(days) {
+  toast('Gerando PDF...');
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const profile = State.profile;
+  const since = new Date();
+  since.setDate(since.getDate() - days);
+  since.setHours(0,0,0,0);
+
+  const tasks = State.allTasks.filter(t => {
+    const d = t.createdAt?.toDate ? t.createdAt.toDate() : new Date(t.createdAt);
+    return d >= since && (t.createdBy === State.user.uid || State.profile.userType === 'admin');
+  });
+
+  const margin = 15, pageW = 210, contentW = pageW - margin*2;
+  let y = margin;
+
+  // Header
+  doc.setFillColor(30,58,95);
+  doc.rect(0,0,210,30,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(18); doc.setFont('helvetica','bold');
+  doc.text('OperaCond — Relatório de Atividades', 105,12,{align:'center'});
+  doc.setFontSize(10); doc.setFont('helvetica','normal');
+  doc.text(`${profile.name}  |  ${profile.role}  |  ${State.workspace?.name||''}`, 105,22,{align:'center'});
+  y = 36;
+
+  doc.setTextColor(0,0,0);
+  doc.setFontSize(10);
+  doc.text(`Período: últimos ${days} dias  |  Gerado em: ${new Date().toLocaleDateString('pt-BR')}`, margin, y);
+  y += 8;
+  doc.setDrawColor(200,200,200); doc.line(margin, y, 210-margin, y); y += 6;
+
+  if (tasks.length === 0) {
+    doc.text('Nenhuma tarefa no período selecionado.', margin, y);
+  }
+
+  for (const t of tasks) {
+    if (y > 260) { doc.addPage(); y = margin; }
+    // Task title
+    doc.setFont('helvetica','bold'); doc.setFontSize(12);
+    doc.setTextColor(30,58,95);
+    doc.text((t.title || Object.keys(t.categories||{}).join(', ') || '—').substring(0,70), margin, y);
+    y += 5;
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(100,100,100);
+    doc.text(`${formatDate(t.createdAt)}   Status: ${t.status==='done'?'Concluída':'Pendente'}`, margin, y);
+    y += 6;
+
+    for (const [cat, desc] of Object.entries(t.categories||{})) {
+      if (y > 265) { doc.addPage(); y = margin; }
+      doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(0,0,0);
+      doc.text(`• ${cat}:`, margin+3, y); y += 4;
+      if (desc) {
+        doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(50,50,50);
+        const lines = doc.splitTextToSize(desc, contentW - 6);
+        doc.text(lines, margin+6, y); y += lines.length*4;
+      }
+    }
+
+    if (t.justification) {
+      if (y > 265) { doc.addPage(); y = margin; }
+      doc.setFontSize(9); doc.setFont('helvetica','italic'); doc.setTextColor(0,100,60);
+      const jlines = doc.splitTextToSize('Conclusão: ' + t.justification, contentW);
+      doc.text(jlines, margin+3, y); y += jlines.length*4;
+    }
+
+    // Photos (max 4 per task)
+    const photos = (t.photos||[]).slice(0,4);
+    if (photos.length > 0) {
+      if (y > 200) { doc.addPage(); y = margin; }
+      const pw = 40, gap = 5;
+      let px = margin;
+      for (const ph of photos) {
+        if (px + pw > 210-margin) { px = margin; y += pw+gap+8; }
+        if (y + pw > 270) { doc.addPage(); y = margin; px = margin; }
+        try { doc.addImage(ph.base64, 'JPEG', px, y, pw, pw); } catch(e) {}
+        if (ph.caption) {
+          doc.setFontSize(7); doc.setTextColor(80,80,80); doc.setFont('helvetica','normal');
+          doc.text(ph.caption.substring(0,22), px, y+pw+4);
+        }
+        px += pw + gap;
+      }
+      y += pw + 12;
+    }
+
+    doc.setDrawColor(230,230,230); doc.line(margin, y, 210-margin, y); y += 5;
+  }
+
+  doc.save(`operacond-relatorio-${days}dias-${Date.now()}.pdf`);
+  toast('PDF gerado!');
+}
+
+// ══════════════════════════════════════
+//  CLOSE MODALS ON BACKDROP CLICK
+// ══════════════════════════════════════
+document.querySelectorAll('.modal-backdrop').forEach(bd => {
+  bd.addEventListener('click', e => { if (e.target === bd) bd.classList.remove('open'); });
+});
+</script>
+</body>
+</html>
